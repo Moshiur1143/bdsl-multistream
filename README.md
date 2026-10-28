@@ -54,6 +54,6 @@ Dataset: [SignBD-Word on Zenodo](https://zenodo.org/records/6779843). Preserve a
 
 ## Team workflow
 
-See [team plan](docs/TEAM_PLAN.md). Each member clones the repository, creates a branch, commits their actual changes using their own identity, pushes the branch and opens a pull request. Describe what changed and how it was checked. The imported project is shared starting material, not separately completed work by each member.
+Each member clones the repository, creates a branch, commits their actual changes using their own identity, pushes the branch and opens a pull request. Describe what changed and how it was checked. The imported project is shared starting material, not separately completed work by each member.
 
 The owner must grant teammates access to a private repository. Keep model and dataset backups separately from Git. Never commit credentials.
