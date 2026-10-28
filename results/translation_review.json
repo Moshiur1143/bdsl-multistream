@@ -1,0 +1,14 @@
+{
+  "classes": 200,
+  "source_text_checked": 198,
+  "requires_sign_verification": [
+    "sotru",
+    "protibondhi"
+  ],
+  "all_signer_verified": false,
+  "corrections": [
+    "Official Enemy row incorrectly repeats protibondhi: proposed sotru, requires sign review",
+    "kee -> ke: exact class-name alignment for Who / কে"
+  ],
+  "remaining": "Verify meanings against actual signing; do not mark these two reviewed merely to bypass the demo guard."
+}

@@ -1,0 +1,22 @@
+{
+  "blank_frame_test": "passed",
+  "config": {
+    "version": "2.1-local",
+    "face_detector": "short_range_upper_body_roi",
+    "frames": 32,
+    "max_side": 960,
+    "face_size": 96,
+    "sampling": "uniform_actual_frames",
+    "slots": "pose_matched_left_right",
+    "graph": "left21_right21_pose33_xy",
+    "missing": "zero_plus_explicit_mask",
+    "mediapipe": "0.10.21",
+    "opencv": "4.11.0",
+    "source_sha256": "b66319ec859b4004c990ddb44474218f911cbd53cfc689cff386b711eec9a564",
+    "model_sha256": {
+      "hand.task": "fbc2a30080c3c557093b5ddfc334698132eb341044ccee322ccf8bcf3607cde1",
+      "pose.task": "59929e1d1ee95287735ddd833b19cf4ac46d29bc7afddbbf6753c459690d574a",
+      "face_short.tflite": "b4578f35940bf5a1a655214a1cce5cab13eba73c1297cd78e1a04c2380b0152f"
+    }
+  }
+}

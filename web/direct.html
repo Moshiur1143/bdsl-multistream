@@ -1,0 +1,34 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BdSL — English & বাংলা</title><style>
+body{font-family:Segoe UI,Nirmala UI,sans-serif;background:#101a24;color:#eef5ff;max-width:1000px;margin:40px auto;padding:24px}h1{font-size:32px}video{width:100%;max-height:440px;background:#050a10;border-radius:16px;transform:scaleX(-1)}button{padding:14px 24px;border:0;border-radius:8px;background:#8fe0c4;margin:12px 8px 12px 0;font-size:16px;cursor:pointer}.labels{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#1e3040;padding:24px;border-radius:12px}.word{font-size:30px;margin-top:10px;min-height:80px}[lang=bn]{font-family:'Nirmala UI','Vrinda','Noto Sans Bengali',sans-serif}small{color:#b9ccdc}#error{color:#ffbdad}
+</style><h1>BdSL <span lang="bn">ইশারা থেকে শব্দ</span></h1>
+<p id="review"></p><p>Isolated-sign recognition · English and বাংলা</p><video id="video" autoplay muted playsinline></video>
+<div><button id="start">Start camera</button><button id="stop" disabled>Stop camera</button></div>
+<div class="labels"><section class="card"><small>ENGLISH</small><div id="en" class="word">Camera off</div></section><section class="card"><small lang="bn">বাংলা</small><div id="bn" class="word" lang="bn">ক্যামেরা বন্ধ</div></section></div>
+<p id="status" role="status">Keep both hands and your face visible. Use one sign at a time.</p><p id="error" role="alert"></p>
+<small>Experimental demo: unknown signs can be misclassified. Webcam frames are processed on this PC; this app does not save them.</small>
+<canvas id="canvas" hidden></canvas><script>const el=id=>document.getElementById(id);let active=false,token=0,previewUrl=null;
+const preview=document.createElement('img');preview.style.cssText='width:100%;max-height:480px;object-fit:contain;transform:scaleX(-1)';preview.alt='Direct OBS camera preview';el('video').replaceWith(preview);
+let rotation=Number(localStorage.getItem('bdslRotation')||0);if(![0,90,180,270].includes(rotation))rotation=0;
+let appliedRotation=null;
+const rotationBar=document.createElement('div');rotationBar.innerHTML='<button id="rotateLeft">↶ বামে 90°</button><button id="rotateRight">↷ ডানে 90°</button><button id="rotateReset">Reset rotation</button><span id="rotationValue" role="status"></span>';
+preview.before(rotationBar);
+function setRotation(value){rotation=(value+360)%360;localStorage.setItem('bdslRotation',rotation);el('rotationValue').textContent='Rotation: '+rotation+'°';}
+el('rotateLeft').onclick=()=>setRotation(rotation+90);
+el('rotateRight').onclick=()=>setRotation(rotation-90);
+el('rotateReset').onclick=()=>setRotation(0);setRotation(rotation);
+async function rotatedFrame(blob,angle){if(!angle)return blob;const bitmap=await createImageBitmap(blob);try{const canvas=document.createElement('canvas');const swap=angle===90||angle===270;canvas.width=swap?bitmap.height:bitmap.width;canvas.height=swap?bitmap.width:bitmap.height;const ctx=canvas.getContext('2d');ctx.translate(canvas.width/2,canvas.height/2);ctx.rotate(angle*Math.PI/180);ctx.drawImage(bitmap,-bitmap.width/2,-bitmap.height/2);return await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.9));}finally{bitmap.close();}}
+el('status').textContent='Direct OBS mode: Python reads the camera. Keep OBS Virtual Camera running.';
+
+const diagnosticsPanel=document.createElement('section');diagnosticsPanel.style.cssText='padding:16px;margin-top:12px;background:#1e3040;border-radius:12px;white-space:pre-line';diagnosticsPanel.setAttribute('aria-live','polite');diagnosticsPanel.textContent='Practice diagnostics: start camera. Top-3 guesses are not confirmed translations.';el('status').after(diagnosticsPanel);
+function showDiagnostics(d){if(!d){diagnosticsPanel.textContent='Restart RUN_DIRECT_CAMERA to load diagnostics.';return;}const guesses=d.top3.map((x,i)=>(i+1)+'. '+x.bangla+' / '+x.english+' — '+(x.confidence*100).toFixed(1)+'%').join('\n');diagnosticsPanel.textContent='Practice diagnostics — guesses, not confirmed translations\nGeometry: '+(d.geometry||'OLD SERVER — restart required')+'\nHands detected: '+d.hands_detected+'/2 | Face: '+(d.face_detected?'Yes':'No')+'\nAcceptance threshold: '+Math.round(d.threshold*100)+'% | '+d.reason+'\nখাবার / Food: '+(d.khabar_confidence===null?'waiting for frames':(d.khabar_confidence*100).toFixed(1)+'% · rank '+d.khabar_rank+'/200')+'\nTop 3 model scores (not calibrated probabilities):\n'+(guesses||'Waiting for 32 frames');}
+
+fetch('/status').then(r=>r.json()).then(s=>el('review').textContent='REVIEW DEMO — '+s.pending_translations+' meanings await verification.');
+async function stop(){active=false;token++;el('start').disabled=false;el('stop').disabled=true;await fetch('/camera/stop',{method:'POST',headers:{'X-BdSL-Camera':'local'}});if(previewUrl)URL.revokeObjectURL(previewUrl);preview.removeAttribute('src');el('en').textContent='Camera off';el('bn').textContent='ক্যামেরা বন্ধ';}
+el('stop').onclick=stop;
+el('start').onclick=async()=>{if(active)return;active=true;el('start').disabled=true;el('stop').disabled=false;el('error').textContent='';await fetch('/reset',{method:'POST'});loop(++token);};
+async function loop(t){if(!active||t!==token)return;try{const frameRotation=rotation;if(appliedRotation!==frameRotation){await fetch('/reset',{method:'POST'});appliedRotation=frameRotation;el('en').textContent='Waiting for sign';el('bn').textContent='ইশারার অপেক্ষায়';}const capture=await fetch('/camera/frame',{method:'POST',headers:{'X-BdSL-Camera':'local'}});if(!capture.ok)throw Error(await capture.text());const blob=await rotatedFrame(await capture.blob(),frameRotation);if(!active||t!==token)return;if(frameRotation!==rotation){setTimeout(()=>loop(t),0);return;}if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl=URL.createObjectURL(blob);preview.src=previewUrl;const response=await fetch('/frame',{method:'POST',headers:{'Content-Type':'image/jpeg'},body:blob});if(response.status===429){if(active&&t===token){el('status').textContent='Model busy; retrying. Keep only one demo tab active.';setTimeout(()=>loop(t),400);}return;}if(!response.ok)throw Error('Processing failed: '+response.status);const data=await response.json();if(active&&t===token){showDiagnostics(data.diagnostics);el('en').textContent=data.english;el('bn').textContent=data.bangla;el('status').textContent='Direct OBS · Buffer '+data.buffer_frames+'/32 · confidence '+Math.round(data.confidence*100)+'% · processing '+data.processing_ms+' ms';}}catch(e){el('error').textContent=e.message;await stop();}if(active&&t===token)setTimeout(()=>loop(t),100);}
+window.addEventListener('pagehide',()=>{fetch('/camera/stop',{method:'POST',headers:{'X-BdSL-Camera':'local'},keepalive:true});});</script></html>
+
+
+

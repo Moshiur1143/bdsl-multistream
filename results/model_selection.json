@@ -1,0 +1,12 @@
+{
+  "selected": "fusion_v2",
+  "validation_macro_f1": {
+    "graph": 0.5497507076257075,
+    "fusion": 0.5232957385751503,
+    "graph_v2": 0.8463839216339215,
+    "fusion_v2": 0.8620173160173161
+  },
+  "test_evaluated": true,
+  "test_report": "results/fusion_v2/EVALUATION_REPORT.md",
+  "previous_selected": "graph"
+}

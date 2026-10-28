@@ -1,0 +1,7 @@
+{
+  "test": "16 training clips only, optimization sanity check",
+  "initial_loss": 5.611083984375,
+  "final_loss": 0.00048799067735671997,
+  "parameters": 1441433,
+  "not_validation_accuracy": true
+}

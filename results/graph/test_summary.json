@@ -1,0 +1,81 @@
+{
+  "checkpoint": "models\\graph\\best.pt",
+  "checkpoint_sha256": "eb886dcc241f7e32a16b94556d7e868deb62461065f88e11b9160d6dc0e519f8",
+  "manifest_sha256": "5f1c1f50a0c6ca1e764eabdd40f436bdbeed9bb976a4f73beff226c72fbc7ca0",
+  "selected_using": "validation macro-F1 only",
+  "classes": 200,
+  "test_videos": 1200,
+  "correct_top1": 655,
+  "by_signer": {
+    "p10": {
+      "videos": 400,
+      "accuracy": 0.4975
+    },
+    "p5": {
+      "videos": 400,
+      "accuracy": 0.625
+    },
+    "p9": {
+      "videos": 400,
+      "accuracy": 0.515
+    }
+  },
+  "top_confusions": [
+    {
+      "true_gloss": "dukkhito",
+      "predicted_gloss": "ami",
+      "count": 5
+    },
+    {
+      "true_gloss": "aangti",
+      "predicted_gloss": "sandal",
+      "count": 3
+    },
+    {
+      "true_gloss": "chesta",
+      "predicted_gloss": "doya",
+      "count": 3
+    },
+    {
+      "true_gloss": "nurse",
+      "predicted_gloss": "chosma",
+      "count": 3
+    },
+    {
+      "true_gloss": "bangladesh",
+      "predicted_gloss": "dustu",
+      "count": 3
+    },
+    {
+      "true_gloss": "kanna",
+      "predicted_gloss": "nischit",
+      "count": 3
+    },
+    {
+      "true_gloss": "sahajjo",
+      "predicted_gloss": "ghori",
+      "count": 3
+    },
+    {
+      "true_gloss": "sonibar",
+      "predicted_gloss": "aam",
+      "count": 3
+    },
+    {
+      "true_gloss": "lojja",
+      "predicted_gloss": "purush",
+      "count": 3
+    },
+    {
+      "true_gloss": "saat",
+      "predicted_gloss": "ek",
+      "count": 3
+    }
+  ],
+  "metrics": {
+    "accuracy": 0.5458333333333333,
+    "macro_f1": 0.533825711895977,
+    "top5": 0.8183333333333334
+  },
+  "note": "Test diagnostics are descriptive. Do not tune against this exposed test set."
+}

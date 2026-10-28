@@ -1,0 +1,10 @@
+{
+  "synthetic_blank_frames": 35,
+  "no_false_accepts": true,
+  "bilingual_mapping": "passed",
+  "strict_review_guard": "passed",
+  "review_placeholder": "passed",
+  "origin_guard": "passed",
+  "mean_processing_ms": 20.282857142857143,
+  "note": "Synthetic blank-frame API test only; not webcam accuracy or end-to-end FPS."
+}

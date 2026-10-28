@@ -1,0 +1,10 @@
+{
+  "synthetic": true,
+  "decoder": "passed",
+  "cache_readback": "passed",
+  "normalization": "passed",
+  "bilingual_coverage": "passed",
+  "fusion_batch16_amp_optimizer": "passed",
+  "device": "cuda",
+  "peak_cuda_GiB": 0.876
+}

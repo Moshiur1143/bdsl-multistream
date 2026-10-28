@@ -1,0 +1,29 @@
+{
+  "model": "fusion_v2",
+  "classes": 200,
+  "test_videos": 1200,
+  "correct": 982,
+  "metrics": {
+    "accuracy": 0.8183333333333334,
+    "macro_f1": 0.8132241859447743,
+    "top5": 0.9333333333333333
+  },
+  "validation": {
+    "accuracy": 0.8675,
+    "macro_f1": 0.8620173160173161,
+    "top5": 0.9725
+  },
+  "by_signer": {
+    "p10": 0.795,
+    "p5": 0.89,
+    "p9": 0.77
+  },
+  "checkpoint_sha256": "cd391c2b86a525780caae88b4f1026e7c932cdedc6b5f74c12c5c376d414ef7c",
+  "protocol": "Selected by validation macro-F1. Same held-out signer test set previously evaluated for baseline; not a fresh untouched test set.",
+  "webcam_accuracy_measured": false,
+  "translations_source_checked": 198,
+  "translations_pending": [
+    "sotru",
+    "protibondhi"
+  ]
+}

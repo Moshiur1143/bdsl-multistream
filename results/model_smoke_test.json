@@ -1,0 +1,23 @@
+{
+  "device": "cuda",
+  "gpu": "NVIDIA GeForce RTX 5070",
+  "torch": "2.11.0+cu128",
+  "tests": {
+    "graph": {
+      "parameters": 214056,
+      "forward_backward": "passed",
+      "missing_mask_invariance": "passed"
+    },
+    "face": {
+      "parameters": 272072,
+      "forward_backward": "passed",
+      "missing_mask_invariance": "passed"
+    },
+    "fusion": {
+      "parameters": 476778,
+      "forward_backward": "passed",
+      "missing_mask_invariance": "passed"
+    }
+  },
+  "note": "Synthetic software checks only; no recognition accuracy measured."
+}

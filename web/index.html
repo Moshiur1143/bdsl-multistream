@@ -1,0 +1,41 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BdSL — English & বাংলা</title><style>
+body{font-family:Segoe UI,Nirmala UI,sans-serif;background:#101a24;color:#eef5ff;max-width:1000px;margin:40px auto;padding:24px}h1{font-size:32px}video{width:100%;max-height:440px;background:#050a10;border-radius:16px;transform:scaleX(-1)}button{padding:14px 24px;border:0;border-radius:8px;background:#8fe0c4;margin:12px 8px 12px 0;font-size:16px;cursor:pointer}.labels{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#1e3040;padding:24px;border-radius:12px}.word{font-size:30px;margin-top:10px;min-height:80px}[lang=bn]{font-family:'Nirmala UI','Vrinda','Noto Sans Bengali',sans-serif}small{color:#b9ccdc}#error{color:#ffbdad}
+</style><h1>BdSL <span lang="bn">ইশারা থেকে শব্দ</span></h1>
+<p><a href="/direct" style="color:#8fe0c4">OBS not detected? Open Direct OBS camera mode</a></p><p id="review"></p><p>Isolated-sign recognition · English and বাংলা</p><video id="video" autoplay muted playsinline></video>
+<div><button id="start">Start camera</button><button id="stop" disabled>Stop camera</button></div>
+<div class="labels"><section class="card"><small>ENGLISH</small><div id="en" class="word">Camera off</div></section><section class="card"><small lang="bn">বাংলা</small><div id="bn" class="word" lang="bn">ক্যামেরা বন্ধ</div></section></div>
+<p id="status" role="status">Keep both hands and your face visible. Use one sign at a time.</p><p id="error" role="alert"></p>
+<small>Experimental demo: unknown signs can be misclassified. Webcam frames are processed on this PC; this app does not save them.</small>
+<canvas id="canvas" hidden></canvas><script>const panel=document.createElement('p');panel.innerHTML='<label>Camera: <select id="camera"><option value="">Automatic</option></select></label> <button id="scan">Refresh cameras</button> <span id="devices"></span>';document.getElementById('video').after(panel);
+async function scan(){const list=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='videoinput');const select=document.getElementById('camera'),old=select.value;select.replaceChildren(new Option('Automatic',''));list.forEach((d,i)=>select.add(new Option(d.label||('Camera '+(i+1)),d.deviceId)));select.value=list.some(d=>d.deviceId===old)?old:(list.find(d=>/OBS/i.test(d.label))?.deviceId||'');document.getElementById('devices').textContent=list.length+' camera(s) visible';}
+document.getElementById('scan').onclick=()=>scan().catch(e=>document.getElementById('error').textContent=e.name+': '+e.message);scan().catch(()=>{});
+let stream=null,active=false,generation=0;const v=document.querySelector('#video'),c=document.querySelector('#canvas');
+const el=id=>document.getElementById(id);
+let rotation=Number(localStorage.getItem('bdslRotation')||0);if(![0,90,180,270].includes(rotation))rotation=0;
+let appliedRotation=null;
+const rotationBar=document.createElement('div');rotationBar.innerHTML='<button id="rotateLeft">↶ বামে 90°</button><button id="rotateRight">↷ ডানে 90°</button><button id="rotateReset">Reset rotation</button><span id="rotationValue" role="status"></span>';
+v.before(rotationBar);
+function setRotation(value){rotation=(value+360)%360;localStorage.setItem('bdslRotation',rotation);el('rotationValue').textContent='Rotation: '+rotation+'°';}
+el('rotateLeft').onclick=()=>setRotation(rotation+90);
+el('rotateRight').onclick=()=>setRotation(rotation-90);
+el('rotateReset').onclick=()=>setRotation(0);setRotation(rotation);
+
+
+const diagnosticsPanel=document.createElement('section');diagnosticsPanel.style.cssText='padding:16px;margin-top:12px;background:#1e3040;border-radius:12px;white-space:pre-line';diagnosticsPanel.setAttribute('aria-live','polite');diagnosticsPanel.textContent='Practice diagnostics: start camera. Top-3 guesses are not confirmed translations.';el('status').after(diagnosticsPanel);
+function showDiagnostics(d){if(!d){diagnosticsPanel.textContent='Restart RUN_DIRECT_CAMERA to load diagnostics.';return;}const guesses=d.top3.map((x,i)=>(i+1)+'. '+x.bangla+' / '+x.english+' — '+(x.confidence*100).toFixed(1)+'%').join('\n');diagnosticsPanel.textContent='Practice diagnostics — guesses, not confirmed translations\nGeometry: '+(d.geometry||'OLD SERVER — restart required')+'\nHands detected: '+d.hands_detected+'/2 | Face: '+(d.face_detected?'Yes':'No')+'\nAcceptance threshold: '+Math.round(d.threshold*100)+'% | '+d.reason+'\nখাবার / Food: '+(d.khabar_confidence===null?'waiting for frames':(d.khabar_confidence*100).toFixed(1)+'% · rank '+d.khabar_rank+'/200')+'\nTop 3 model scores (not calibrated probabilities):\n'+(guesses||'Waiting for 32 frames');}
+
+fetch('/status').then(r=>r.json()).then(s=>{el('review').textContent=s.review_mode?'REVIEW DEMO — '+s.pending_translations+' meanings await verification. Not a final accuracy demonstration.':'Model: '+s.model;});
+el('start').onclick=async()=>{try{el('error').textContent='';stream=await navigator.mediaDevices.getUserMedia({video:el('camera').value?{deviceId:{exact:el('camera').value},width:{ideal:1280},height:{ideal:720}}:{width:{ideal:1280},height:{ideal:720}},audio:false});v.srcObject=stream;await v.play();v.hidden=true;c.hidden=false;c.style.cssText="width:100%;max-height:480px;object-fit:contain;transform:scaleX(-1)";v.after(c);await fetch('/reset',{method:'POST'});active=true;el('start').disabled=true;el('stop').disabled=false;loop(++generation);}catch(e){el('error').textContent=e.name+': '+e.message;stop();}};
+function stop(){generation++;active=false;if(stream)stream.getTracks().forEach(t=>t.stop());v.srcObject=null;c.hidden=true;v.hidden=false;el('start').disabled=false;el('stop').disabled=true;el('en').textContent='Camera off';el('bn').textContent='ক্যামেরা বন্ধ';}
+el('stop').onclick=stop;
+async function loop(token){if(!active||token!==generation)return;const tick=performance.now();try{if(appliedRotation!==rotation){await fetch('/reset',{method:'POST'});appliedRotation=rotation;}const scale=Math.min(1,960/Math.max(v.videoWidth,v.videoHeight)),w=Math.round(v.videoWidth*scale),h=Math.round(v.videoHeight*scale),swap=rotation===90||rotation===270;c.width=swap?h:w;c.height=swap?w:h;const ctx=c.getContext('2d');ctx.translate(c.width/2,c.height/2);ctx.rotate(rotation*Math.PI/180);ctx.drawImage(v,-w/2,-h/2,w,h);const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.85));const response=await fetch('/frame',{method:'POST',headers:{'Content-Type':'image/jpeg'},body:blob});if(response.status===429){if(active&&token===generation){el('status').textContent='Model busy; retrying. Keep one camera tab active.';setTimeout(()=>loop(token),400);}return;}if(!response.ok)throw Error('Processing failed: '+response.status);const data=await response.json();if(active&&token===generation){showDiagnostics(data.diagnostics);el('en').textContent=data.english;el('bn').textContent=data.bangla;el('status').textContent=`Buffer ${data.buffer_frames}/32 · input ${c.width}×${c.height} · confidence ${(data.confidence*100).toFixed(0)}% · processing ${data.processing_ms} ms`;}}catch(e){el('error').textContent=e.name+': '+e.message;stop();}if(active&&token===generation)setTimeout(()=>loop(token),Math.max(0,100-(performance.now()-tick)));}
+</script></html>
+
+
+
+
+
+
+
+
