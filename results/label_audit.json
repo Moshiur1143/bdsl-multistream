@@ -1,0 +1,15 @@
+{
+  "classes": 200,
+  "statuses": {
+    "matches_dataset": 168,
+    "needs_review": 25,
+    "unresolved": 7
+  },
+  "pending_meanings": [
+    "protibondhi",
+    "sotru"
+  ],
+  "placeholder_check": "passed",
+  "method": "Automated normalized text comparison, not linguistic or expert verification",
+  "mapping_modified": false
+}
